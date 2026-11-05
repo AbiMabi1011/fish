@@ -1,0 +1,12 @@
+import {beforeEach,expect,it,vi} from 'vitest';
+import {render,screen,fireEvent,cleanup,waitFor,within} from '@testing-library/react';
+import {AuthPage} from '@/routes/auth';
+const m=vi.hoisted(()=>({api:vi.fn(),refresh:vi.fn(),navigate:vi.fn()}));
+vi.mock('@/services/localApi',()=>({api:m.api}));
+vi.mock('@/identity/AuthProvider',()=>({useAuth:()=>({user:null,refresh:m.refresh})}));
+vi.mock('@tanstack/react-router',()=>({createFileRoute:()=>()=>({}),useNavigate:()=>m.navigate,Link:({children,to,...props}:any)=><a href={to} {...props}>{children}</a>}));
+beforeEach(()=>{cleanup();vi.clearAllMocks();m.api.mockResolvedValue({user:{id:'local-1'}});m.refresh.mockResolvedValue(undefined);m.navigate.mockResolvedValue(undefined);});
+function credentials(){fireEvent.change(screen.getByLabelText('Email'),{target:{value:'diver@example.com'}});fireEvent.change(screen.getByLabelText('Password'),{target:{value:'local-password-123'}});}
+it('registers on the local server and enters the game immediately',async()=>{render(<AuthPage/>);fireEvent.click(screen.getByRole('button',{name:'Create an account'}));credentials();fireEvent.change(screen.getByLabelText('Player name'),{target:{value:'Diver'}});fireEvent.click(screen.getByRole('button',{name:'Create account'}));await waitFor(()=>expect(m.navigate).toHaveBeenCalledWith({to:'/'}));expect(m.api).toHaveBeenCalledWith('/auth/register',{email:'diver@example.com',password:'local-password-123',name:'Diver'});expect(m.refresh).toHaveBeenCalled();expect(screen.queryByText('Check your email!')).not.toBeInTheDocument();});
+it('logs in with the local identity service',async()=>{render(<AuthPage/>);credentials();fireEvent.click(within(screen.getByRole('form',{name:'Account details'})).getByRole('button',{name:'Sign in'}));await waitFor(()=>expect(m.refresh).toHaveBeenCalled());expect(m.api).toHaveBeenCalledWith('/auth/login',expect.objectContaining({email:'diver@example.com'}));});
+it('shows persistent backend errors and unlocks the form',async()=>{m.api.mockRejectedValue(new Error('Email or password not recognised.'));render(<AuthPage/>);credentials();fireEvent.click(within(screen.getByRole('form',{name:'Account details'})).getByRole('button',{name:'Sign in'}));expect(await screen.findByRole('alert')).toHaveTextContent('Email or password not recognised.');expect(within(screen.getByRole('form',{name:'Account details'})).getByRole('button',{name:'Sign in'})).toBeEnabled();});

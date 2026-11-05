@@ -1,0 +1,10 @@
+# Attribution and independence
+
+- The original interface, art, game rules, tests and Journey design were exported from the user's Fish Puzzle Quest / Treasure Count project on 30 October 2026. The original was AI-assisted in Lovable. Existing comments acknowledge that origin; they are attribution, not active service dependencies.
+- OpenAI Codex, 30 October 2026: migrated the application to plain Vite, created the local Node/SQLite backend, adapted services/authentication/server-authoritative gameplay, retained and adapted duels, copied images/fonts locally, added tests and documentation, and implemented the requested scroll behaviour. The independent edition remains AI-assisted and should be acknowledged as such.
+- Marc Conrad: Fish Game API and supplied puzzle images/counts, https://marcconrad.com/uob/fish/doc.php . Runtime endpoint: `https://marcconrad.com/uob/fish/api.php?out=json&base64=yes`. Service supplied as-is, may be discontinued, and is not for commercial applications according to its documentation.
+- React: https://react.dev/ ; TanStack Router/Query: https://tanstack.com/ ; Vite: https://vite.dev/ ; Tailwind CSS: https://tailwindcss.com/ ; shadcn/ui and Radix components: https://ui.shadcn.com/ and https://www.radix-ui.com/ . Installed dependencies retain their respective licenses.
+- Node.js built-in HTTP, crypto, SQLite and test modules: https://nodejs.org/api/ . The backend does not use a cloud database SDK.
+- Lilita One and Nunito fonts, distributed by Google Fonts: https://fonts.google.com/specimen/Lilita+One and https://fonts.google.com/specimen/Nunito . Local font files and SIL Open Font License notices are in `public/fonts/`.
+
+There are no Lovable/Supabase runtime imports, hosting plugins, service URLs, authentication brokers, vendor telemetry hooks, API credentials or backend account dependencies in this edition. The earlier exports are preserved outside this directory for reference. Cloud account records and password hashes were not migrated or copied.

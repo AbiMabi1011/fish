@@ -1,0 +1,68 @@
+[
+  {
+    "id": "coral",
+    "name": "Rose coral",
+    "icon": "\ud83e\udeb8",
+    "coins": 60,
+    "shells": 0,
+    "level": 1,
+    "description": "Plant a colourful coral garden.",
+    "x": 22,
+    "y": 75
+  },
+  {
+    "id": "kelp",
+    "name": "Kelp forest",
+    "icon": "\ud83c\udf3f",
+    "coins": 90,
+    "shells": 0,
+    "level": 1,
+    "description": "Let a little sea forest sway.",
+    "x": 77,
+    "y": 72
+  },
+  {
+    "id": "castle",
+    "name": "Sunken castle",
+    "icon": "\ud83c\udff0",
+    "coins": 200,
+    "shells": 0,
+    "level": 2,
+    "description": "Build a home for your reef friends.",
+    "x": 50,
+    "y": 74
+  },
+  {
+    "id": "turtle",
+    "name": "Turtle companion",
+    "icon": "\ud83d\udc22",
+    "coins": 0,
+    "shells": 2,
+    "level": 1,
+    "description": "Welcome a gentle swimming friend.",
+    "x": 30,
+    "y": 34
+  },
+  {
+    "id": "jelly",
+    "name": "Moon jellyfish",
+    "icon": "\ud83e\udebc",
+    "coins": 0,
+    "shells": 3,
+    "level": 2,
+    "description": "A rare visitor from the twilight waters.",
+    "x": 72,
+    "y": 30
+  },
+  {
+    "id": "crown",
+    "name": "Explorer\u2019s crown",
+    "icon": "\ud83d\udc51",
+    "coins": 300,
+    "shells": 1,
+    "level": 3,
+    "description": "Crown your reef with a golden treasure.",
+    "x": 52,
+    "y": 48
+  }
+]
