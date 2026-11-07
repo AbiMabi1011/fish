@@ -4,3 +4,7 @@ data/
 .tanstack/
 *.local
 *.log
+
+.env
+.env.*
+!.env.example

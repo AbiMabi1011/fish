@@ -1,0 +1,33 @@
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL,
+  name TEXT NOT NULL,
+  salt TEXT NOT NULL,
+  hash TEXT NOT NULL,
+  avatar TEXT NOT NULL DEFAULT 'goldfish'
+);
+CREATE UNIQUE INDEX IF NOT EXISTS users_email_lower ON users (lower(email));
+CREATE TABLE IF NOT EXISTS sessions (
+  token TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id),
+  expires BIGINT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS sessions_user ON sessions(user_id);
+CREATE TABLE IF NOT EXISTS progress (
+  user_id TEXT PRIMARY KEY REFERENCES users(id),
+  data TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS games (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id),
+  score INTEGER NOT NULL,
+  rounds INTEGER NOT NULL,
+  reward TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS games_score ON games(score DESC, created_at DESC);
+CREATE TABLE IF NOT EXISTS rooms (
+  id TEXT PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  data TEXT NOT NULL
+);
