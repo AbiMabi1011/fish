@@ -2,10 +2,41 @@ import { AsyncLocalStorage } from "node:async_hooks";
 import { readFile } from "node:fs/promises";
 import pg from "pg";
 
+export function normalizeConnectionString(connectionString) {
+  if (typeof connectionString !== "string" || !connectionString)
+    return connectionString;
+  try {
+    const url = new URL(connectionString);
+    const isSupabase =
+      url.hostname.endsWith(".supabase.com") ||
+      url.hostname.endsWith(".supabase.co");
+    if (
+      isSupabase &&
+      !url.searchParams.has("sslrootcert") &&
+      !url.searchParams.has("uselibpqcompat") &&
+      !url.searchParams.has("ssl")
+    ) {
+      const mode = url.searchParams.get("sslmode");
+      if (!mode || mode === "require") {
+        url.searchParams.set("sslmode", "require");
+        url.searchParams.set("uselibpqcompat", "true");
+        return url.toString();
+      }
+    }
+  } catch {
+    // Keep non-URL connection strings as provided.
+  }
+  return connectionString;
+}
+
 export async function createPostgresDatabase(connectionString, suppliedPool) {
   const pool =
     suppliedPool ??
-    new pg.Pool({ connectionString, max: 10, connectionTimeoutMillis: 10000 });
+    new pg.Pool({
+      connectionString: normalizeConnectionString(connectionString),
+      max: 10,
+      connectionTimeoutMillis: 10000,
+    });
   const context = new AsyncLocalStorage();
   pool.on?.("error", () => console.error("PostgreSQL pool connection failed."));
   try {

@@ -1,3 +1,4 @@
+import "./load-env.mjs";
 import { DatabaseSync } from "node:sqlite";
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
@@ -76,7 +77,7 @@ if (
 ) {
   if (!process.env.DATABASE_URL)
     throw new Error("Set DATABASE_URL to your PostgreSQL connection string.");
-  const target = await createPostgresDatabase(process.env.DATABASE_URL);
+  const target = await createPostgresDatabase(process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL);
   try {
     const source = resolve(process.env.DATA_FILE || "data/treasure.sqlite");
     console.log("Import finished:", await importSqlite(source, target));

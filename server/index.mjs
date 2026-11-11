@@ -1,3 +1,4 @@
+import "./load-env.mjs";
 import { createServer } from "node:http";
 import { mkdir, readFile, stat } from "node:fs/promises";
 import { resolve, sep, extname } from "node:path";
@@ -111,11 +112,16 @@ const server = createServer(async (req, res) => {
   const path = new URL(req.url, "http://" + req.headers.host).pathname;
   if (path.startsWith("/api/")) {
     try {
+      const extraOrigins = (process.env.APP_ORIGIN || "")
+        .split(",")
+        .map((s) => s.trim().replace(/\/+$/, ""))
+        .filter(Boolean);
       const allowedOrigins = new Set([
         "http://" + req.headers.host,
+        "https://" + req.headers.host,
         "http://127.0.0.1:5174",
         "http://localhost:5174",
-        ...(process.env.APP_ORIGIN ? [process.env.APP_ORIGIN] : []),
+        ...extraOrigins,
       ]);
       if (
         req.method === "POST" &&
@@ -299,13 +305,18 @@ const server = createServer(async (req, res) => {
     res.end("Build the app first, or use the development server on port 5174.");
   }
 });
-server.listen(
-  Number(process.env.PORT || 3002),
-  process.env.HOST || "127.0.0.1",
-  () =>
-    console.log(
-      "Treasure Count backend: http://127.0.0.1:" + (process.env.PORT || 3002),
-    ),
+const port = Number(process.env.PORT || 3002);
+const host =
+  process.env.HOST ||
+  (process.env.RENDER ||
+  process.env.RAILWAY_ENVIRONMENT ||
+  process.env.FLY_APP_NAME ||
+  process.env.K_SERVICE ||
+  process.env.NODE_ENV === "production"
+    ? "0.0.0.0"
+    : "127.0.0.1");
+server.listen(port, host, () =>
+  console.log(`Treasure Count backend: http://${host}:${port}`),
 );
 function stop() {
   for (const s of games.values()) s.engine?.dispose();

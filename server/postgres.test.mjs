@@ -2,7 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { PGlite } from "@electric-sql/pglite";
 import { createPostgresStore } from "./postgres-store.mjs";
-import { createPostgresDatabase } from "./postgres-db.mjs";
+import {
+  createPostgresDatabase,
+  normalizeConnectionString,
+} from "./postgres-db.mjs";
 import { createStore } from "./store.mjs";
 import { importSqlite } from "./import-sqlite.mjs";
 import { Duels } from "./duels.mjs";
@@ -189,4 +192,22 @@ test("PostgreSQL retries serialization conflicts using one checked-out client pe
   } finally {
     await db.close();
   }
+});
+
+test("normalizeConnectionString configures compatible TLS for Supabase poolers without overriding explicit certs", () => {
+  const pooler =
+    "postgresql://postgres.ref:pass@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres";
+  assert.equal(
+    normalizeConnectionString(pooler),
+    pooler + "?sslmode=require&uselibpqcompat=true",
+  );
+  assert.equal(
+    normalizeConnectionString(pooler + "?sslmode=require"),
+    pooler + "?sslmode=require&uselibpqcompat=true",
+  );
+  const strict =
+    pooler + "?sslmode=verify-full&sslrootcert=./prod-ca-2021.crt";
+  assert.equal(normalizeConnectionString(strict), strict);
+  const local = "postgresql://postgres:pass@127.0.0.1:5432/postgres";
+  assert.equal(normalizeConnectionString(local), local);
 });
