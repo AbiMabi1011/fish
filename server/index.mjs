@@ -91,8 +91,12 @@ const send = (res, status, data, headers = {}) => {
   });
   res.end(JSON.stringify(data));
 };
-const cookie = (token) =>
-  `treasure_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${token ? 604800 : 0}${process.env.COOKIE_SECURE === "true" ? "; Secure" : ""}`;
+const cookie = (token, req) => {
+  const secure =
+    process.env.COOKIE_SECURE === "true" ||
+    req?.headers["x-forwarded-proto"] === "https";
+  return `treasure_session=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${token ? 604800 : 0}${secure ? "; Secure" : ""}`;
+};
 async function body(req) {
   let text = "";
   for await (const c of req) {
@@ -159,7 +163,7 @@ const server = createServer(async (req, res) => {
           res,
           200,
           { user: account },
-          { "Set-Cookie": cookie(await store.createSession(account.id)) },
+          { "Set-Cookie": cookie(await store.createSession(account.id), req) },
         );
       }
       if (!user)
@@ -168,7 +172,7 @@ const server = createServer(async (req, res) => {
         });
       if (req.method === "POST" && path === "/api/auth/logout") {
         await store.logout(token);
-        return send(res, 200, { ok: true }, { "Set-Cookie": cookie("") });
+        return send(res, 200, { ok: true }, { "Set-Cookie": cookie("", req) });
       }
       if (req.method === "POST" && path === "/api/auth/avatar")
         return send(
