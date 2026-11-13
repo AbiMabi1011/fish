@@ -133,6 +133,8 @@ const server = createServer(async (req, res) => {
         !allowedOrigins.has(req.headers.origin)
       )
         return send(res, 403, { error: "Request origin not allowed." });
+      if (req.method === "GET" && path === "/api/health")
+        return send(res, 200, { ok: true });
       const token = /(?:^|;\s*)treasure_session=([a-f0-9]{64})/.exec(
         req.headers.cookie || "",
       )?.[1];
