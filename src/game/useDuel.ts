@@ -25,12 +25,15 @@ export function useDuel(id: string | null, userId: string | undefined) {
     setDuel(null); setPuzzle(null); setFeedback("");
     if (!id) return;
     void refresh();
-    return watchDuel(id, () => void refresh());
   }, [id, refresh]);
   const players = duel && userId ? duelPlayers(duel, userId) : null;
   const round = players?.me.round;
   const status = duel?.status;
   const lives = players?.me.lives;
+  useEffect(() => {
+    if (!id || status === "finished") return;
+    return watchDuel(id, () => void refresh());
+  }, [id, status, refresh]);
   useEffect(() => {
     setPuzzle(null);
     if (!id || status !== "playing" || !lives || round === undefined || round >= DUEL_ROUNDS) return;

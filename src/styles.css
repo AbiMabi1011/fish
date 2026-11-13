@@ -635,8 +635,8 @@ body { font-family: "Nunito", system-ui, sans-serif; }
 
 /* Layering: scene art (bottom) -> swimming fish/bubbles -> panels & controls (top) */
 .ocean { isolation: isolate; }
-.ocean > *:not(.ocean-backdrop):not(.site-nav) { z-index: auto; }
-.ocean > .ocean-backdrop { z-index: 1; }
+.ocean > *:not(.ocean-backdrop):not(.site-nav) { position: relative; z-index: 2; }
+.ocean > .ocean-backdrop { z-index: 0; }
 .site-nav { z-index: 20; }
 .auth-ocean, .mode-ocean, .solo-ocean, .over-ocean, .game-welcome { isolation: auto; z-index: auto; }
 .welcome-background, .welcome-shade { z-index: 0; }

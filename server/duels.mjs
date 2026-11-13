@@ -1,19 +1,20 @@
 import { randomUUID, randomBytes } from "node:crypto";
+import { countingLayout } from "./counting-layout.mjs";
 export class Duels {
   constructor(store, provider) {
     this.store = store;
     this.provider = provider;
     this.creating = new Set();
     let queue = Promise.resolve();
-    for (const name of ["read", "join", "start", "puzzle", "answer", "leave"]) {
+    this.serialize = (fn) => {
+      if (store.transaction) return store.transaction(fn);
+      const result = queue.then(fn);
+      queue = result.catch(() => {});
+      return result;
+    };
+    for (const name of ["join", "start", "answer", "leave"]) {
       const operation = this[name].bind(this);
-      this[name] = (...args) => {
-        if (store.transaction)
-          return store.transaction(() => operation(...args));
-        const result = queue.then(() => operation(...args));
-        queue = result.catch(() => {});
-        return result;
-      };
+      this[name] = (...args) => this.serialize(() => operation(...args));
     }
   }
   async create(user) {
@@ -22,9 +23,11 @@ export class Duels {
     this.creating.add(user.id);
     try {
       const puzzles = [];
-      for (let i = 0; i < 10; i += 2)
+      for (let i = 0; i < 10; i += 5)
         puzzles.push(
-          ...(await Promise.all([this.provider(), this.provider()])),
+          ...(await Promise.all(
+            Array.from({ length: 5 }, () => this.provider()),
+          )),
         );
       const room = {
         id: randomUUID(),
@@ -56,8 +59,24 @@ export class Duels {
       throw new Error("This room belongs to other players.");
     return user.id === room.host_id ? "host" : "guest";
   }
+  needsSweep(room) {
+    if (room.status !== "playing") return false;
+    const now = Date.now();
+    const expired = ["host", "guest"].some(
+      (side) =>
+        room[side + "_round"] < 10 &&
+        room[side + "_lives"] > 0 &&
+        room[side + "_started"] &&
+        now > Date.parse(room[side + "_started"]) + 15000,
+    );
+    const allDone = ["host", "guest"].every(
+      (s) => room[s + "_round"] >= 10 || room[s + "_lives"] <= 0,
+    );
+    return expired || allDone;
+  }
   async sweep(room) {
-    if (room.status !== "playing") return;
+    if (room.status !== "playing") return false;
+    let changed = false;
     for (const side of ["host", "guest"]) {
       if (room[side + "_round"] >= 10 || room[side + "_lives"] <= 0) continue;
       if (
@@ -67,20 +86,33 @@ export class Duels {
         room[side + "_round"]++;
         room[side + "_lives"]--;
         room[side + "_started"] = new Date(Date.now() + 700).toISOString();
+        changed = true;
       }
     }
     if (
       ["host", "guest"].every(
         (s) => room[s + "_round"] >= 10 || room[s + "_lives"] <= 0,
       )
-    )
+    ) {
       room.status = "finished";
-    await this.store.saveRoom(room);
+      changed = true;
+    }
+    if (changed) await this.store.saveRoom(room);
+    return changed;
   }
-  async read(id, user) {
+  async freshRoom(id, user) {
     const room = await this.store.room(id);
     this.member(room, user);
-    await this.sweep(room);
+    if (!this.needsSweep(room)) return room;
+    return this.serialize(async () => {
+      const latest = await this.store.room(id);
+      this.member(latest, user);
+      await this.sweep(latest);
+      return latest;
+    });
+  }
+  async read(id, user) {
+    const room = await this.freshRoom(id, user);
     const { puzzles, ...publicRoom } = room;
     return publicRoom;
   }
@@ -104,17 +136,22 @@ export class Duels {
     await this.store.saveRoom(room);
   }
   async puzzle(id, user) {
-    const room = await this.store.room(id),
+    const room = await this.freshRoom(id, user),
       side = this.member(room, user);
-    await this.sweep(room);
     const n = room[side + "_round"];
     if (room.status !== "playing" || n >= 10 || room[side + "_lives"] <= 0)
       return null;
+    const current = room.puzzles[n];
     return {
-      imageUrl: room.puzzles[n].imageUrl,
+      imageUrl: current.imageUrl,
       round: n,
       startsAt: room[side + "_started"],
       seconds: 15,
+      scene: countingLayout(
+        current.fish,
+        current.chests ?? 0,
+        `${current.imageUrl}:${n}`,
+      ),
     };
   }
   async answer(id, user, round, answer) {

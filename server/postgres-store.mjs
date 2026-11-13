@@ -337,12 +337,20 @@ export async function createPostgresStore(connectionString, suppliedPool) {
       await db.close();
     },
   };
+  const readOnly = new Set([
+    "close",
+    "user",
+    "leaderboard",
+    "best",
+    "room",
+    "roomByCode",
+  ]);
   return {
     transaction: db.transaction,
     ...Object.fromEntries(
       Object.entries(store).map(([name, operation]) => [
         name,
-        name === "close"
+        readOnly.has(name)
           ? operation
           : (...args) => tx(() => operation(...args)),
       ]),

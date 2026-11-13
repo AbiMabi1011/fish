@@ -292,7 +292,11 @@ const server = createServer(async (req, res) => {
       target = resolve(dist, "index.html");
     }
     const content = await readFile(target);
+    const cacheControl = path.startsWith("/assets/")
+      ? "public, max-age=31536000, immutable"
+      : "no-cache";
     res.writeHead(200, {
+      "Cache-Control": cacheControl,
       "Content-Type":
         {
           ".html": "text/html",

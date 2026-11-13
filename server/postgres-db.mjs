@@ -34,8 +34,9 @@ export async function createPostgresDatabase(connectionString, suppliedPool) {
     suppliedPool ??
     new pg.Pool({
       connectionString: normalizeConnectionString(connectionString),
-      max: 10,
-      connectionTimeoutMillis: 10000,
+      max: 15,
+      connectionTimeoutMillis: 30000,
+      idleTimeoutMillis: 30000,
     });
   const context = new AsyncLocalStorage();
   pool.on?.("error", () => console.error("PostgreSQL pool connection failed."));

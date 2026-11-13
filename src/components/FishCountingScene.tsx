@@ -1,13 +1,19 @@
-import type { Puzzle } from "@/services/fishApi";
 import mascot from "@/assets/mascot.png";
 import chest from "@/assets/counting-chest.png";
 import lagoon from "@/assets/counting-lagoon.jpg";
 import reef from "@/assets/counting-reef.jpg";
-import { countingLayout } from './countingLayout';
+import { countingLayout, type CountingObject } from './countingLayout';
+
+interface ScenePuzzle {
+  imageUrl: string;
+  fish?: number;
+  chests?: number;
+  scene?: CountingObject[];
+}
 
 /** Presentation only: the Fish API remains the source of the correct count. */
-export function FishCountingScene({ puzzle, round }: { puzzle: Puzzle; round: number }) {
-  const objects = countingLayout(puzzle.fish, puzzle.chests, `${puzzle.imageUrl}:${round}`);
+export function FishCountingScene({ puzzle, round }: { puzzle: ScenePuzzle; round: number }) {
+  const objects = puzzle.scene ?? countingLayout(puzzle.fish ?? 0, puzzle.chests ?? 0, `${puzzle.imageUrl}:${round}`);
   return (
     <div className="counting-scene puzzle-img" role="img" aria-label="Count the fish in the underwater picture">
       <img src={round % 2 ? lagoon : reef} alt="" width={1024} height={1024} className="counting-backdrop" />
