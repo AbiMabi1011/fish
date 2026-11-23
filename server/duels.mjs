@@ -1,5 +1,4 @@
 import { randomUUID, randomBytes } from "node:crypto";
-import { countingLayout } from "./counting-layout.mjs";
 export class Duels {
   constructor(store, provider) {
     this.store = store;
@@ -147,11 +146,6 @@ export class Duels {
       round: n,
       startsAt: room[side + "_started"],
       seconds: 15,
-      scene: countingLayout(
-        current.fish,
-        current.chests ?? 0,
-        `${current.imageUrl}:${n}`,
-      ),
     };
   }
   async answer(id, user, round, answer) {

@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Copy, LogOut, Play, Plus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { FishCountingScene } from "@/components/FishCountingScene";
 import { useAuth } from "@/identity/AuthProvider";
 import { useDuel } from "@/game/useDuel";
 import { DUEL_ROUNDS, duelResult } from "@/game/duelRules";
@@ -92,7 +91,7 @@ function OnlinePage() {
                 </div>
                 <div className="play-panel">
                   <h2 className="play-title">How many fish do you see?</h2>
-                  <div className="puzzle-frame">{puzzle && game.countdown === 0 ? <FishCountingScene key={puzzle.round} puzzle={puzzle} round={puzzle.round} /> : <img src={avatar.image} alt="Preparing the next picture" className="mascot w-28 rounded-full" />}</div>
+                  <div className="puzzle-frame">{puzzle && game.countdown === 0 ? <img key={puzzle.round} src={puzzle.imageUrl} alt="Count the fish" className="api-puzzle-image puzzle-img h-full w-full object-contain" /> : <img src={avatar.image} alt="Preparing the next picture" className="mascot w-28 rounded-full" />}</div>
                   <div className="feedback-slot" aria-live="polite"><p role="status" className="min-h-6 text-center text-primary">{game.feedback}</p></div>
                   <img src={avatar.image} alt="" width={512} height={512} className="play-mascot selected-character" aria-hidden="true" />
                 </div>

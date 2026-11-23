@@ -11,7 +11,6 @@ import { stageGoal, stageStart } from "@/game/stageRules";
 import { START_LIVES } from "@/game/GameEngine";
 import { GameWelcome } from "@/components/GameWelcome";
 import { GameModeChooser } from "@/components/GameModeChooser";
-import { FishCountingScene } from "@/components/FishCountingScene";
 import { Button } from "@/components/ui/button";
 import { Pause, Play, Check, Home } from "lucide-react";
 import { useAuth } from "@/identity/AuthProvider";
@@ -197,7 +196,7 @@ function PlayPage() {
                   <p className="animate-pulse text-card-foreground">Fetching a new puzzle…</p>
                 </div>
               ) : (
-                <FishCountingScene key={state.round} puzzle={state.puzzle} round={state.round} />
+                <img key={state.round} src={state.puzzle.imageUrl} alt="Count the fish" className="api-puzzle-image puzzle-img h-full w-full object-contain" />
               )}
             </div>
             <div className="feedback-slot" aria-live="polite">
