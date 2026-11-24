@@ -1,18 +1,23 @@
 // src/game/stageRules.ts
 var TOTAL_STAGES = 100;
-var GOALS = [5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90];
+var STAGE_GOALS = [5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90];
 function stageGoal(stage) {
-  return GOALS[stage - 1] ?? 100 + (stage - GOALS.length - 1) * 10;
+  const fixedGoal = STAGE_GOALS[stage - 1];
+  if (fixedGoal !== void 0) return fixedGoal;
+  return 100 + (stage - STAGE_GOALS.length - 1) * 10;
 }
 function stageStart(stage) {
   let total = 0;
-  for (let i = 1; i < stage; i++) total += stageGoal(i);
+  for (let current = 1; current < stage; current++) {
+    total += stageGoal(current);
+  }
   return total;
 }
 function stageFromAnswers(answers) {
+  let remaining = answers;
   let stage = 1;
-  while (stage < TOTAL_STAGES && answers >= stageGoal(stage)) {
-    answers -= stageGoal(stage);
+  while (stage < TOTAL_STAGES && remaining >= stageGoal(stage)) {
+    remaining -= stageGoal(stage);
     stage++;
   }
   return stage;
