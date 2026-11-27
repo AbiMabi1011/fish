@@ -16,18 +16,22 @@ export class Duels {
       this[name] = (...args) => this.serialize(() => operation(...args));
     }
   }
+  async fetchTenPuzzles() {
+    const puzzles = [];
+    for (let i = 0; i < 10; i += 5)
+      puzzles.push(
+        ...(await Promise.all(
+          Array.from({ length: 5 }, () => this.provider()),
+        )),
+      );
+    return puzzles;
+  }
   async create(user) {
     if (this.creating.has(user.id))
       throw new Error("A room is already being created.");
     this.creating.add(user.id);
     try {
-      const puzzles = [];
-      for (let i = 0; i < 10; i += 5)
-        puzzles.push(
-          ...(await Promise.all(
-            Array.from({ length: 5 }, () => this.provider()),
-          )),
-        );
+      const puzzles = await this.fetchTenPuzzles();
       const room = {
         id: randomUUID(),
         code: randomBytes(4).toString("hex").toUpperCase(),
@@ -39,12 +43,14 @@ export class Duels {
         host_score: 0,
         host_lives: 3,
         host_started: null,
+        host_rematch: false,
         guest_id: null,
         guest_name: null,
         guest_round: 0,
         guest_score: 0,
         guest_lives: 3,
         guest_started: null,
+        guest_rematch: false,
         puzzles,
       };
       await this.store.saveRoom(room);
@@ -179,6 +185,45 @@ export class Duels {
     await this.store.saveRoom(room);
     return { expected, correct, points };
   }
+  async rematch(id, user) {
+    const current = await this.store.room(id);
+    const currentSide = this.member(current, user);
+    const otherSide = currentSide === "host" ? "guest" : "host";
+    if (current.status !== "finished")
+      throw new Error("Finish the current match before playing again.");
+    if (!current.guest_id)
+      throw new Error("Both players are needed to play again.");
+    const prefetched = current[otherSide + "_rematch"]
+      ? await this.fetchTenPuzzles()
+      : null;
+    return this.serialize(async () => {
+      const room = await this.store.room(id);
+      const side = this.member(room, user);
+      if (room.status === "playing") return { started: true };
+      if (room.status !== "finished")
+        throw new Error("Finish the current match before playing again.");
+      if (!room.guest_id)
+        throw new Error("Both players are needed to play again.");
+      room[side + "_rematch"] = true;
+      if (room.host_rematch && room.guest_rematch) {
+        room.puzzles = prefetched ?? (await this.fetchTenPuzzles());
+        room.status = "playing";
+        room.host_round = 0;
+        room.host_score = 0;
+        room.host_lives = 3;
+        room.guest_round = 0;
+        room.guest_score = 0;
+        room.guest_lives = 3;
+        room.host_rematch = false;
+        room.guest_rematch = false;
+        room.host_started = room.guest_started = new Date(
+          Date.now() + 3000,
+        ).toISOString();
+      }
+      await this.store.saveRoom(room);
+      return { started: room.status === "playing" };
+    });
+  }
   async leave(id, user) {
     const room = await this.store.room(id),
       side = this.member(room, user);
@@ -188,6 +233,9 @@ export class Duels {
         room.guest_id = null;
         room.guest_name = null;
       }
+    } else if (room.status === "finished") {
+      room.host_rematch = false;
+      room.guest_rematch = false;
     } else {
       room[side + "_lives"] = 0;
       room[side + "_round"] = 10;

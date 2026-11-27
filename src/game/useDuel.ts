@@ -31,9 +31,9 @@ export function useDuel(id: string | null, userId: string | undefined) {
   const status = duel?.status;
   const lives = players?.me.lives;
   useEffect(() => {
-    if (!id || status === "finished") return;
+    if (!id) return;
     return watchDuel(id, () => void refresh());
-  }, [id, status, refresh]);
+  }, [id, refresh]);
   useEffect(() => {
     setPuzzle(null);
     if (!id || status !== "playing" || !lives || round === undefined || round >= DUEL_ROUNDS) return;

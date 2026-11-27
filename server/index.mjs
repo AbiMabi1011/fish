@@ -248,7 +248,7 @@ const server = createServer(async (req, res) => {
           id: await duels.join((await body(req)).code, user),
         });
       const match =
-        /^\/api\/duels\/([a-f0-9-]+)(?:\/(puzzle|answer|start|leave))?$/.exec(
+        /^\/api\/duels\/([a-f0-9-]+)(?:\/(puzzle|answer|start|leave|rematch))?$/.exec(
           path,
         );
       if (match) {
@@ -265,6 +265,8 @@ const server = createServer(async (req, res) => {
             await duels.answer(id, user, d.round, d.answer),
           );
         }
+        if (req.method === "POST" && action === "rematch")
+          return send(res, 200, await duels.rematch(id, user));
         if (req.method === "POST" && ["start", "leave"].includes(action)) {
           await duels[action](id, user);
           return send(res, 200, { ok: true });

@@ -47,6 +47,20 @@ test("duels enforce membership, capacity, host start, deadlines and replay prote
     await service.leave(id, host);
     await service.leave(id, guest);
     assert.equal((await service.read(id, host)).status, "finished");
+    const firstRematch = await service.rematch(id, host);
+    assert.equal(firstRematch.started, false);
+    assert.equal((await service.read(id, guest)).host_rematch, true);
+    assert.equal((await service.read(id, guest)).status, "finished");
+    const acceptedRematch = await service.rematch(id, guest);
+    assert.equal(acceptedRematch.started, true);
+    const restarted = await service.read(id, host);
+    assert.equal(restarted.status, "playing");
+    assert.equal(restarted.host_score, 0);
+    assert.equal(restarted.guest_score, 0);
+    assert.equal(restarted.host_round, 0);
+    assert.equal(restarted.host_lives, 3);
+    assert.equal(restarted.host_rematch, false);
+    assert.equal(restarted.guest_rematch, false);
   } finally {
     store.close();
   }

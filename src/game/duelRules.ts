@@ -14,6 +14,7 @@ export function duelPlayers(duel: Duel, userId: string) {
     score: isHost ? duel.host_score : duel.guest_score,
     round: isHost ? duel.host_round : duel.guest_round,
     lives: isHost ? duel.host_lives : duel.guest_lives,
+    rematch: Boolean(isHost ? duel.host_rematch : duel.guest_rematch),
   };
 
   const opponent = {
@@ -21,6 +22,7 @@ export function duelPlayers(duel: Duel, userId: string) {
     score: isHost ? duel.guest_score : duel.host_score,
     round: isHost ? duel.guest_round : duel.host_round,
     lives: isHost ? duel.guest_lives : duel.host_lives,
+    rematch: Boolean(isHost ? duel.guest_rematch : duel.host_rematch),
   };
 
   return { host: isHost, me, opponent };

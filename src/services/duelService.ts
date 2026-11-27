@@ -22,6 +22,8 @@ export interface Duel {
   guest_round: number;
   host_started: string | null;
   guest_started: string | null;
+  host_rematch?: boolean;
+  guest_rematch?: boolean;
 }
 
 export interface DuelPuzzle {
@@ -72,6 +74,10 @@ export async function startDuel(id: string) {
 
 export async function leaveDuel(id: string) {
   await api(`/duels/${id}/leave`, {});
+}
+
+export function requestRematch(id: string): Promise<{ started: boolean }> {
+  return api(`/duels/${id}/rematch`, {});
 }
 
 /** Polls the duel room every 1 second so both players stay in sync. */
