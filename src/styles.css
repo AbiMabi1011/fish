@@ -870,3 +870,35 @@ body:has(.journey-page) .ocean-fish { visibility: hidden; }
 @media (min-width: 1000px) {
  .solo-scene .puzzle-frame { width: 100%; min-width: 0; aspect-ratio: auto; height: max(210px, calc(100dvh - 320px)); }
 }
+
+
+/* ---- Responsive polish for all devices (Single-Player & 2-Player) ---- */
+@media (max-width: 999px) {
+  .solo-ocean { padding: 14px 14px 28px; }
+  .solo-scene { gap: 14px; }
+  .solo-scene .puzzle-frame { aspect-ratio: 16 / 10; max-height: 52dvh; }
+  .solo-scene .play-mascot { display: none; }
+  .solo-scene .play-panel { margin-bottom: 0; }
+}
+
+@media (max-width: 640px) {
+  .site-nav { margin-bottom: 12px; }
+  .site-nav nav { flex-wrap: wrap; gap: 8px 12px; padding: 10px 12px; }
+  .site-nav nav > div:first-child { flex-wrap: wrap; gap: 10px 14px; }
+  .solo-ocean { padding: 10px 10px 24px; }
+  .solo-scene { gap: 12px; }
+  .solo-scene .play-hud { gap: 8px; }
+  .solo-scene .hud-player { min-width: 0; padding: 4px 10px 4px 4px; }
+  .solo-scene .hud-pill { width: 100%; justify-content: center; flex-wrap: wrap; gap: 6px; padding: 6px 8px; }
+  .solo-scene .hud-seg { padding: 4px 10px; font-size: 13px; }
+  .solo-scene .puzzle-frame { aspect-ratio: 4 / 3; max-height: 44dvh; }
+  .solo-scene .answer-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; width: 100%; }
+  .solo-scene .answer-row .pad-cluster,
+  .solo-scene .answer-row .answer-mid { display: contents; }
+  .solo-scene .answer-display { grid-column: 1 / -1; order: -1; width: 100%; min-width: 0; padding: 10px 12px; font-size: 18px; }
+  .solo-scene .stepper { width: 100%; height: 46px; font-size: 20px; }
+  .dive-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .dive-stats dd { font-size: 17px; }
+  .over-stats { gap: 8px; }
+  .over-stat b { font-size: 22px; }
+}

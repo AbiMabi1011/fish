@@ -4,7 +4,7 @@
  * tracking and a Play Again (rematch) flow that requires the opponent to accept.
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ArrowLeft,
   Check,
@@ -62,27 +62,6 @@ function OnlinePage() {
 
   const game = useDuel(roomId, user?.id);
   const { duel, players, puzzle } = game;
-
-  // Allow pressing 0-9 on the keyboard to answer quickly during a round.
-  useEffect(() => {
-    if (!game.accepting) return;
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (
-        event.target instanceof HTMLInputElement ||
-        event.target instanceof HTMLTextAreaElement
-      ) {
-        return;
-      }
-      if (/^[0-9]$/.test(event.key)) {
-        event.preventDefault();
-        void game.submit(Number(event.key));
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [game.accepting, game.submit]);
 
   async function runAction(action: () => Promise<void>) {
     setBusy(true);
@@ -284,7 +263,7 @@ function OnlinePage() {
                 <div
                   role="status"
                   className={`toast-pop ${
-                    game.feedback.startsWith("Nice") ? "toast-ok" : "toast-bad"
+                    game.feedback.startsWith("Correct") ? "toast-ok" : "toast-bad"
                   }`}
                 >
                   {game.feedback}
