@@ -1,6 +1,9 @@
 /**
- * Fetches one fish-counting puzzle from the external Marc Conrad Fish API.
- * Docs: https://marcconrad.com/uob/fish/doc.php
+ * INTEROPERABILITY Adapter — Marc Conrad Fish Game API.
+ * Fetches live puzzles over HTTP + JSON from https://marcconrad.com/uob/fish/api.php
+ * and validates/converts them into our internal { imageUrl, fish, chests } format.
+ * Docs: https://marcconrad.com/uob/fish/doc.php (© Marc Conrad).
+ * Developed with AI coding assistance (see REFERENCES.md); reviewed by the author.
  */
 const FISH_API_URL =
   "https://marcconrad.com/uob/fish/api.php?out=json&base64=yes";

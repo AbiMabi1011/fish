@@ -1,3 +1,9 @@
+/**
+ * 2-Player Online Duel Service — HIGH COHESION & VIRTUAL IDENTITY.
+ * Manages room creation, joining by 8-character code, shared Fish API puzzles,
+ * 15-second round deadlines, rematch acceptance, and anti-cheat answer checking.
+ * Developed with AI coding assistance (see REFERENCES.md); reviewed by the author.
+ */
 import { randomUUID, randomBytes } from "node:crypto";
 export class Duels {
   constructor(store, provider) {

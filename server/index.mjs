@@ -1,3 +1,10 @@
+/**
+ * Treasure Count Backend HTTP Server (Node.js).
+ * Themes: Low Coupling (wires store, GameEngine, Duels, and puzzles),
+ * Event-Driven Programming (subscribes to GameEngine EventBus events),
+ * Virtual Identity (HttpOnly session cookies & route authentication).
+ * Developed with AI coding assistance (see REFERENCES.md); reviewed by the author.
+ */
 import "./load-env.mjs";
 import { createServer } from "node:http";
 import { mkdir, readFile, stat } from "node:fs/promises";
